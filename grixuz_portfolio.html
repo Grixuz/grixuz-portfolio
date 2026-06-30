@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDIXZ — Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --card: #1C1C1C;
+    --cyan: #00F5FF;
+    --cyan-dim: rgba(0,245,255,0.12);
+    --cyan-glow: rgba(0,245,255,0.35);
+    --white: #E8E8E8;
+    --muted: #6B6B6B;
+    --border: #2A2A2A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── TIMELINE SEPARATOR ── */
+  .timeline-sep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 48px;
+    opacity: 0.4;
+  }
+  .timeline-sep::before, .timeline-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+  .timeline-sep span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--cyan);
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,245,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .logo-block {
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 16vw, 140px);
+    letter-spacing: 8px;
+    color: var(--white);
+    text-shadow: 0 0 60px var(--cyan-glow), 0 0 120px rgba(0,245,255,0.15);
+    line-height: 1;
+  }
+
+  .logo-slash {
+    color: var(--cyan);
+    text-shadow: 0 0 30px var(--cyan);
+  }
+
+  .logo-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+
+  .hero-bio {
+    max-width: 520px;
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+
+  .hero-bio strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .services-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+
+  .service-tag {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 6px 16px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .service-tag:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .cta-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  .cta-arrow svg { width: 20px; opacity: 0.4; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ── SECTION BASE ── */
+  section {
+    padding: 80px 24px;
+    max-width: 740px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 56px);
+    letter-spacing: 2px;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 48px;
+  }
+
+  /* ── VIDEO CARDS ── */
+  .video-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+
+  .video-card:hover {
+    border-color: rgba(0,245,255,0.3);
+    box-shadow: 0 0 30px rgba(0,245,255,0.06);
+  }
+
+  .video-type-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .type-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .type-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* Dot colors per category */
+  .dot-gaming { background: #FF4D6D; box-shadow: 0 0 8px rgba(255,77,109,0.6); }
+  .dot-business { background: #00F5FF; box-shadow: 0 0 8px rgba(0,245,255,0.6); }
+  .dot-edu { background: #FFBE0B; box-shadow: 0 0 8px rgba(255,190,11,0.6); }
+
+  .video-placeholder {
+    aspect-ratio: 16/9;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,255,0.03) 0%, transparent 60%);
+  }
+
+  .play-btn {
+    width: 56px; height: 56px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    z-index: 1;
+  }
+  .play-btn svg { width: 20px; fill: var(--white); opacity: 0.6; margin-left: 3px; }
+  .video-placeholder:hover .play-btn {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+  }
+
+  .video-url-hint {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.5;
+    z-index: 1;
+  }
+
+  /* Embed real videos */
+  .video-embed {
+    aspect-ratio: 16/9;
+    width: 100%;
+    border: none;
+    display: block;
+  }
+
+  .video-info {
+    padding: 20px 20px 24px;
+  }
+
+  .video-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .video-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .video-desc strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  /* ── CONTACT SECTION ── */
+  #contact {
+    text-align: center;
+    padding: 80px 24px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 480px) {
+    .contact-grid { grid-template-columns: 1fr; }
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--white);
+    transition: border-color 0.2s, background 0.2s;
+    text-align: left;
+  }
+
+  .contact-card:hover {
+    border-color: rgba(0,245,255,0.3);
+    background: var(--cyan-dim);
+  }
+
+  .contact-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 17px;
+  }
+
+  .contact-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .contact-handle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── DISCLAIMER ── */
+  #disclaimer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    max-width: 740px;
+    margin: 40px auto 0;
+    text-align: center;
+  }
+
+  .disclaimer-label {
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.5;
+    margin-bottom: 12px;
+  }
+
+  .disclaimer-text {
+    font-size: 14px;
+    color: var(--white);
+    opacity: 0.85;
+    line-height: 1.9;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .footer-sig {
+    margin-top: 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--border);
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section id="hero">
+  <div class="logo-block">
+    <div class="logo-text">EDI<span class="logo-slash">/</span>XZ</div>
+    <div class="logo-subtitle">Chris Ruiz · Video Editor</div>
+  </div>
+
+  <p class="hero-bio">
+    Soy <strong>Chris Ruiz</strong>, editor de video especializado en crear contenido que <strong>engancha, comunica y convierte</strong>. Trabajo con creadores, marcas y gamers que necesitan reels con personalidad — ritmo ajustado, color intencional, y cortes que se sienten.
+  </p>
+
+  <div class="services-row">
+    <span class="service-tag">Gaming Reels</span>
+    <span class="service-tag">Business Content</span>
+    <span class="service-tag">Educative Videos</span>
+    <span class="service-tag">Short-Form Editing</span>
+  </div>
+
+  <div class="cta-arrow">
+    <span>Ver portfolio</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════ PORTFOLIO ══════════════ -->
+<section id="work">
+  <div class="timeline-sep"><span>work</span></div>
+
+  <div class="section-eyebrow">Portfolio</div>
+  <div class="section-title">LO QUE PUEDO HACER</div>
+
+  <!-- GAMING -->
+  <div class="video-card reveal">
+    <div class="video-type-bar">
+      <div class="type-dot dot-gaming"></div>
+      <span class="type-label">Gaming Edit</span>
+    </div>
+
+    <!-- 👇 REEMPLAZA el src con tu link de YouTube embed -->
+    <div class="video-placeholder" onclick="this.innerHTML='<iframe class=\'video-embed\' src=\'https://www.youtube.com/embed/-AxOiFnEFBY?autoplay=1\' allow=\'autoplay; fullscreen\'></iframe>'">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span class="video-url-hint">Click para reproducir</span>
+    </div>
+
+    <div class="video-info">
+      <div class="video-title">Gaming Highlight Reel</div>
+      <p class="video-desc">
+        Edito clips de gameplay con <strong>cortes al ritmo de la música</strong>, efectos de velocidad, zooms tácticos y color grading que le da energía al contenido. Ideal para streamers, canales de YouTube gaming o highlights para redes sociales.
+      </p>
+    </div>
+  </div>
+
+  <!-- BUSINESS -->
+  <div class="video-card reveal">
+    <div class="video-type-bar">
+      <div class="type-dot dot-business"></div>
+      <span class="type-label">Business Edit</span>
+    </div>
+
+    <div class="video-placeholder" onclick="this.innerHTML='<iframe class=\'video-embed\' src=\'https://www.youtube.com/embed/gc2CCTjRCO0?autoplay=1\' allow=\'autoplay; fullscreen\'></iframe>'">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span class="video-url-hint">Click para reproducir</span>
+    </div>
+
+    <div class="video-info">
+      <div class="video-title">Business / Brand Reel</div>
+      <p class="video-desc">
+        Produzco contenido para marcas y negocios con <strong>presentación limpia, subtítulos dinámicos y transiciones profesionales</strong>. El objetivo es que el video transmita confianza y lleve al espectador a tomar acción — perfecto para Instagram, TikTok o anuncios.
+      </p>
+    </div>
+  </div>
+
+  <!-- EDUCATIVO -->
+  <div class="video-card reveal">
+    <div class="video-type-bar">
+      <div class="type-dot dot-edu"></div>
+      <span class="type-label">Educative Edit</span>
+    </div>
+
+    <div class="video-placeholder" onclick="this.innerHTML='<iframe class=\'video-embed\' src=\'https://www.youtube.com/embed/qTWmBDNXdqg?autoplay=1\' allow=\'autoplay; fullscreen\'></iframe>'">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span class="video-url-hint">Click para reproducir</span>
+    </div>
+
+    <div class="video-info">
+      <div class="video-title">Educational Content Reel</div>
+      <p class="video-desc">
+        Transformo videos de valor educativo en piezas que <strong>retienen la atención</strong>: captions animados, gráficos de apoyo, ritmo que no da tiempo al aburrimiento. Ideal para coaches, creadores informativos o cuentas de divulgación.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CONTACT ══════════════ -->
+<section id="contact">
+  <div class="timeline-sep"><span>contact</span></div>
+
+  <div class="section-eyebrow">¿Listo para trabajar?</div>
+  <div class="section-title" style="text-align:center;">CONTÁCTAME</div>
+
+  <p style="color: var(--muted); font-size: 14px; margin-bottom: 8px;">
+    Si quieres un video que realmente funcione, hablemos. Estoy disponible para proyectos individuales o colaboraciones continuas.
+  </p>
+
+  <div class="contact-grid">
+    <a class="contact-card" href="https://discordapp.com/users/1519760709033005306" target="_blank">
+      <div class="contact-icon" style="background: rgba(88,101,242,0.15);">💬</div>
+      <div>
+        <div class="contact-name">Discord</div>
+        <div class="contact-handle">edixz</div>
+      </div>
+    </a>
+
+    <a class="contact-card" href="mailto:edixzstudio@gmail.com" target="_blank">
+      <div class="contact-icon" style="background: rgba(234,67,53,0.12);">✉️</div>
+      <div>
+        <div class="contact-name">Gmail</div>
+        <div class="contact-handle">edixzstudio@gmail.com</div>
+      </div>
+    </a>
+
+    <a class="contact-card" href="https://instagram.com/edixz_inst" target="_blank">
+      <div class="contact-icon" style="background: rgba(225,48,108,0.12);">📸</div>
+      <div>
+        <div class="contact-name">Instagram</div>
+        <div class="contact-handle">@edixz_inst</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════════ DISCLAIMER ══════════════ -->
+<div id="disclaimer">
+  <div class="disclaimer-label">Disclaimer</div>
+  <p class="disclaimer-text">
+    Todo el contenido audiovisual presentado en este portfolio fue utilizado exclusivamente con fines demostrativos para exhibir habilidades de edición de video. Los clips, imágenes y material utilizado no representan proyectos reales de clientes ni servicios prestados — son una muestra del estilo y nivel de edición que aplico actualmente y que llevaré a futuros proyectos con clientes. Los derechos de cualquier contenido de terceros pertenecen a sus respectivos propietarios.
+  </p>
+  <div class="footer-sig">EDIXZ · CHRIS RUIZ · VIDEO EDITOR</div>
+</div>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
